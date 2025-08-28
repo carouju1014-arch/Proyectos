@@ -9,11 +9,11 @@ Estructura:
 
 Uso del Makefile:
 
-1. Compilar todos los retos
+1. Compilar todos los retos:
    make
 
-2. Ejecutar un reto
+2. Ejecutar un reto:
 ./reto0* (* es un numero representativo a la cantidad de retos)
 
-3. Limpiar ejecutables
+3. Limpiar ejecutables:
 make clean
