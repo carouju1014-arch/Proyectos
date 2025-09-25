@@ -1,0 +1,16 @@
+Modular C: Multiplicacion de matrices – Sistemas Operativos
+Esta carpeta contiene los cuatro archivos más importantes: el encabezado con su respectiva implementación, 
+el main y el MakeFile para su debida ejecutación.
+
+Estructura:
+
+modulo.h: Encabezado, solo están las firmas de las funciones.
+modulo.c: Implementación de las funciones. 
+mod_ujueta.c: Main. 
+Makefile: automatiza la compilación y limpieza de los ejecutables.
+README.md: documentación del proyecto.
+
+Uso del Makefile:
+Compilar todo: make
+Ejecutar: ./mod_ujueta
+Limpiar ejecutables: make clean
