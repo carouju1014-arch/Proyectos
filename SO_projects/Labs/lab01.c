@@ -33,4 +33,8 @@ int main (int argc, char *argv[]) {
     printf("A partir de aqui es el proceso main o proceso principal \n");
 
     return 0;
+    /**************************************************************
+    * Cuando se ejecuta la función fork(), el proceso original (padre)
+    * se duplica completamente, creando un nuevo proceso llamado hijo.
+    **************************************************************/
 }
