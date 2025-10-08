@@ -1,6 +1,6 @@
 # Laboratorios en C – Sistemas Operativos
 
-Esta carpeta contiene tres programas en C (`lab01.c`, `lab02.c`, `lab03.c`) como parte de los ejercicios de la materia de **Sistemas Operativos**.  
+Esta carpeta contiene tres programas en C (`lab01.c`, `lab02.c`, `lab03.c`) como parte de los ejercicios de la materia de Sistemas Operativos.  
 Cada laboratorio aborda diferentes aspectos del uso de la función `fork()` y la creación de procesos en un sistema operativo tipo Unix.
 
 Estructura:
