@@ -16,9 +16,9 @@ int main (int argc, char *argv[]) {
 
     // Se crea un nuevo proceso con fork()
     // fork() devuelve:
-    //  > 0  → Al proceso padre, con el PID del hijo.
-    //  = 0  → Al proceso hijo, recién creado.
-    //  < 0  → En caso de error.
+    //  > 0  Al proceso padre, con el PID del hijo.
+    //  = 0  Al proceso hijo, recién creado.
+    //  < 0  En caso de error.
     int processID = fork();
 
     // Condicional para diferenciar entre proceso padre e hijo
@@ -33,20 +33,4 @@ int main (int argc, char *argv[]) {
     printf("A partir de aqui es el proceso main o proceso principal \n");
 
     return 0;
-  
-  /**************************************************************
-    * NOTA IMPORTANTE:
-    * La salida puede aparecer en desorden debido a la concurrencia.
-    * 
-    * Cuando se ejecuta fork(), el proceso padre y el proceso hijo 
-    * se ejecutan de manera casi simultánea e independiente.
-    * 
-    * El sistema operativo decide cuál proceso se ejecuta primero 
-    * (planificador o scheduler). Por eso, los mensajes del padre 
-    * y del hijo pueden mezclarse o aparecer en distinto orden 
-    * cada vez que se ejecuta el programa.
-    * 
-    * Este comportamiento es completamente normal y esperado
-    * en la ejecución concurrente de procesos.
-    **************************************************************/
 }
