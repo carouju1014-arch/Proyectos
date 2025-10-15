@@ -21,62 +21,70 @@
 void reverse_string(char *str);
 
 int main(void) {
-    int fd;                 // Descriptor del FIFO
-    char buf[80];           // Buffer para enviar y recibir mensajes
-    const char *end = "end"; // Palabra clave para finalizar la comunicación
-    ssize_t nread;          // Bytes leídos desde el FIFO
+   int fd;                // descriptor del FIFO
+   char readbuf[80];      // buffer para recibir y enviar mensajes
+   char end[10];          // palabra clave "end"
+   int to_end;            // bandera para verificar fin
+   int read_bytes;        // cantidad de bytes leídos
 
-    // Crea el FIFO si no existe (0640: lectura/escritura para el usuario, lectura para el grupo)
-    if (mkfifo(FIFO_FILE, 0640) == -1 && errno != EEXIST) {
-        perror("Error creando FIFO");
-        exit(1);
-    }
+   // Crear el FIFO si no existe (0640: lectura/escritura para usuario, lectura para grupo)
+   mkfifo(FIFO_FILE, S_IFIFO | 0640);
 
-    // Abre el FIFO en modo lectura y escritura (evita que se bloquee esperando al cliente)
-    fd = open(FIFO_FILE, O_RDWR);
-    if (fd == -1) {
-        perror("Error abriendo FIFO");
-        exit(1);
-    }
+   // Copiar palabra de cierre
+   strcpy(end, "end");
 
-    // Ciclo principal: lee mensajes y responde
-    while (1) {
-        // Lee datos enviados desde el cliente
-        nread = read(fd, readbuf, sizeof(readbuf) - 1);
-        if (nread <= 0) continue;  // Si no se leyó nada, vuelve a intentar
+   // Abrir el FIFO en modo lectura/escritura (evita bloqueo si el otro extremo no está listo)
+   fd = open(FIFO_FILE, O_RDWR);
+   if (fd == -1) {
+      perror("Error abriendo FIFO");
+      exit(1);
+   }
 
-        readbuf[nread] = '\0';  // Agrega terminador de cadena
-        printf("Servidor: Recibido -> \"%s\"\n", readbuf);
+   // Bucle principal: leer → procesar → responder
+   while (1) {
+      // Leer mensaje del cliente
+      read_bytes = read(fd, readbuf, sizeof(readbuf) - 1);
+      if (read_bytes <= 0)
+         continue;  // si no hay datos, vuelve a intentar
 
-        // Si el cliente envía "end", se cierra la comunicación
-        if (strcmp(readbuf, end) == 0) {
-            printf("Servidor: Finalizando comunicación.\n");
-            close(fd);
-            break;
-        }
+      readbuf[read_bytes] = '\0';  // asegurar fin de cadena
+      printf("FIFOSERVER: Received string: \"%s\" and length is %d\n",
+             readbuf, (int)strlen(readbuf));
 
-        // Invierte el mensaje recibido
-        reverse_string(readbuf);
+      // Verificar si es "end"
+      to_end = strcmp(readbuf, end);
+      if (to_end == 0) {
+         printf("FIFOSERVER: Termination command received.\n");
+         close(fd);
+         break;
+      }
 
-        // Muestra y envía la cadena invertida de regreso al cliente
-        printf("Servidor: Enviando invertido -> \"%s\"\n", readbuf);
-        write(fd, readbuf, strlen(readbuf));
+      // Invertir la cadena recibida
+      reverse_string(readbuf);
+      printf("FIFOSERVER: Sending Reversed String: \"%s\" and length is %d\n",
+             readbuf, (int)strlen(readbuf));
 
-        sleep(2); // Pausa breve para sincronizar lectura y escritura
-    }
+      // Enviar respuesta al cliente
+      write(fd, readbuf, strlen(readbuf));
 
-    return 0;
+      // Pequeña pausa para que el cliente lea antes de la siguiente iteración
+      sleep(2);
+   }
+
+   return 0;
 }
 
-// Invierte una cadena de texto carácter por carácter
+// Invierte una cadena carácter por carácter
 void reverse_string(char *str) {
-    int i = 0, j = strlen(str) - 1;
-    char temp;
-    while (i < j) {
-        temp = str[i];
-        str[i] = str[j];
-        str[j] = temp;
-        i++;
-        j--;
-    }
+   int first = 0;
+   int last = (int)strlen(str) - 1;
+   char temp;
+
+   while (first < last) {
+      temp = str[first];
+      str[first] = str[last];
+      str[last] = temp;
+      first++;
+      last--;
+   }
 }
