@@ -8,70 +8,75 @@
  * Cliente que se comunica con un servidor mediante una tubería con nombre.
  **************************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include <stdio.h>    
+#include <stdlib.h> 
+#include <string.h>   
+#include <unistd.h>    // read, write, close
+#include <fcntl.h>     // open, O_CREAT, O_RDWR
 
 #define FIFO_FILE "/tmp/fifo_twoway"
 
 int main(void) {
-    int fd;                 // Descriptor del FIFO
-    char buf[80];           // Buffer para enviar y recibir mensajes
-    const char *end = "end"; // Palabra clave para finalizar la comunicación
-    ssize_t nread;          // Bytes leídos desde el FIFO
+   int fd;                 // descriptor del FIFO
+   int end_process;        // bandera para terminar el ciclo
+   int stringlen;          // longitud de la cadena ingresada
+   int read_bytes;         // bytes leídos desde el FIFO
+   char readbuf[80];       // buffer de E/S
+   char end_str[5];        // "end" + '\0'
 
-    // Abre el FIFO (el servidor debe haberlo creado antes)
-    // Se usa O_RDWR para evitar bloqueo si el otro extremo aún no está listo
-    fd = open(FIFO_FILE, O_RDWR);
-    if (fd == -1) {
-        perror("Error abriendo FIFO");
-        exit(1);
-    }
+   printf("FIFO_CLIENT: Send messages, infinitely, to end enter \"end\"\n");
 
-    // Ciclo principal: enviar cadenas hasta escribir "end"
-    while (1) {
-        printf("Cliente: Ingresa una cadena: ");
-        if (!fgets(buf, sizeof(buf), stdin)) {
-            printf("\nCliente: fin de entrada detectado.\n");
-            break;
-        }
+   // MISMA LÓGICA: abrir/crear FIFO en lectura/escritura
+   fd = open(FIFO_FILE, O_CREAT | O_RDWR, 0640);
 
-        // Elimina el salto de línea al final de la cadena (si lo hay)
-        size_t len = strlen(buf);
-        if (len > 0 && buf[len - 1] == '\n') {
-            buf[len - 1] = '\0';
-            len--;
-        }
+   // palabra de corte
+   strcpy(end_str, "end");
 
-        // Evita enviar cadenas vacías
-        if (len == 0) {
-            printf("Cliente: (entrada vacía) no se envía nada.\n");
-            continue;
-        }
+   // bucle principal
+   while (1) {
+      printf("Enter string: ");
+      if (!fgets(readbuf, sizeof(readbuf), stdin)) {
+         // si stdin se cierra, salimos (no cambia la lógica normal)
+         break;
+      }
 
-        // Envía la cadena al servidor a través del FIFO
-        write(fd, buf, len);
-        printf("Cliente: Enviado -> \"%s\"\n", buf);
+      stringlen = (int)strlen(readbuf);
 
-        // Si se envía la palabra "end", se cierra el FIFO y se termina el programa
-        if (strcmp(buf, end) == 0) {
-            printf("Cliente: Finalizando comunicación.\n");
-            close(fd);
-            break;
-        }
+      // quitar el '\n' final si existe (mantiene el comportamiento original)
+      if (stringlen > 0 && readbuf[stringlen - 1] == '\n') {
+         readbuf[stringlen - 1] = '\0';
+      } else {
+         // si el usuario llenó el buffer sin '\n', la longitud real es la actual
+         // (no cambiamos la lógica; solo evitamos escribir fuera de rango)
+      }
 
-        // Espera la respuesta del servidor (cadena invertida)
-        nread = read(fd, buf, sizeof(buf) - 1);
-        if (nread <= 0) {
-            printf("Cliente: No se recibió respuesta del servidor.\n");
-            continue;
-        }
+      end_process = strcmp(readbuf, end_str);
 
-        buf[nread] = '\0'; // Termina la cadena correctamente
-        printf("Cliente: Respuesta del servidor -> \"%s\"\n", buf);
-    }
+      //printf("end_process is %d\n", end_process);
+      if (end_process != 0) {
+         // enviar al servidor
+         write(fd, readbuf, strlen(readbuf));
+         printf("FIFOCLIENT: Sent string: \"%s\" and string length is %d\n",
+                readbuf, (int)strlen(readbuf));
 
-    return 0;
+         // leer respuesta
+         read_bytes = (int)read(fd, readbuf, sizeof(readbuf) - 1);
+         if (read_bytes > 0) {
+            readbuf[read_bytes] = '\0';
+            printf("FIFOCLIENT: Received string: \"%s\" and length is %d\n",
+                   readbuf, (int)strlen(readbuf));
+         } else {
+            // si no hay respuesta, seguimos igual (misma lógica de bucle)
+         }
+      } else {
+         // enviar "end" y salir
+         write(fd, readbuf, strlen(readbuf));
+         printf("FIFOCLIENT: Sent string: \"%s\" and string length is %d\n",
+                readbuf, (int)strlen(readbuf));
+         close(fd);
+         break;
+      }
+   }
+
+   return 0;
 }
