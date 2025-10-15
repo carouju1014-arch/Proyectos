@@ -11,11 +11,8 @@ Está compuesto por dos programas en C:
   Abre la FIFO creada por el servidor, envía cadenas ingresadas por el usuario y muestra la respuesta del servidor.  
   Si el usuario escribe "end", el cliente envía ese mensaje y finaliza.
 
-## Compilación
-
 Uso del Makefile:
 
-Para compilar ambos programas:
-- make
-Para limpiar:
--make clean
+    Compilar todos los laboratorios: make
+    Ejecutar un laboratorio: ./servidor o ./cliente
+    Limpiar ejecutables: make clean
