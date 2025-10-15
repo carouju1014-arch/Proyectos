@@ -21,10 +21,10 @@
 void reverse_string(char *str);
 
 int main(void) {
-    int fd;
-    char readbuf[80];
-    const char *end = "end";
-    ssize_t nread;
+    int fd;                 // Descriptor del FIFO
+    char buf[80];           // Buffer para enviar y recibir mensajes
+    const char *end = "end"; // Palabra clave para finalizar la comunicación
+    ssize_t nread;          // Bytes leídos desde el FIFO
 
     // Crea el FIFO si no existe (0640: lectura/escritura para el usuario, lectura para el grupo)
     if (mkfifo(FIFO_FILE, 0640) == -1 && errno != EEXIST) {
