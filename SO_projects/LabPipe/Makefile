@@ -1,6 +1,6 @@
 #*****************************
-#* Makefile – Carolina Ujueta* 
-#* Servidor y Cliente FIFO   *
+# Makefile – Carolina Ujueta
+# Servidor y Cliente FIFO   
 #*****************************
 
 SERVER = servidor
