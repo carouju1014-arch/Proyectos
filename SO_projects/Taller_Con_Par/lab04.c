@@ -3,7 +3,7 @@
  Nombre:       Carolina Ujueta
  Profesor:     John Corredor
  Universidad:  Pontificia Universidad Javeriana
- Asignatura:   Programación Concurrente / Sistemas Operativos
+ Asignatura:   Sistemas Operativos
  ============================================================================
  Objetivo del challenge:
     Implementar un programa en C que cree varios hilos (threads) 
